@@ -32,14 +32,14 @@ components:
       bearerFormat: JWT
 
 paths:
-  /api/customers/{user-id}:
+  /api/customers/{customer-id}:
     get:
       summary: It returns user data associated to the given user id.
       security:
         - specificCustomerAuth: []
         - adminAuth: []
       parameters:
-        - name: user-id
+        - name: customer-id
           in: path
           description: User identificator
           required: true
@@ -48,7 +48,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        200:
           description: A JSON object describing the user.
           content:
             application/json:
@@ -69,9 +69,11 @@ paths:
                     type: string
                   registered:
                     type: boolean
-        "401":
+        400:
+          description: The request is malformed.
+        401:
           description: Wrong credentials, or customer that is not the interested one, neither an admin.
-        "404":
+        404:
           description: The user with the given id does not exist, or it has been logically deleted.
 
     put:
@@ -82,7 +84,7 @@ paths:
       security:
         - specificCustomerAuth: []
       parameters:
-        - name: user-id
+        - name: customer-id
           in: path
           description: User identificator
           required: true
@@ -110,13 +112,13 @@ paths:
                 password:
                   type: string
       responses:
-        "200":
+        200:
           description: The modification has been accepted by the server.
-        "400":
-          description: Malformed request.
-        "401":
+        400:
+          description: The request is malformed.
+        401:
           description: Wrong credentials, or customer that is not the interested one.
-        "404":
+        404:
           description: The user with the given id does not exist, or it has been logically deleted.
 
     delete:
@@ -125,7 +127,7 @@ paths:
         - specificCustomerAuth: []
         - adminAuth: []
       parameters:
-        - name: user-id
+        - name: customer-id
           in: path
           description: User identificator
           required: true
@@ -136,10 +138,12 @@ paths:
       responses:
         200:
           description: The customer has been correctly deleted.
+        400:
+          description: The request is malformed.
         401:
           description: Wrong credentials, or customer that is not the interested one, neither an admin.
 
-  /api/customers/:
+  /api/customers:
     post:
       summary: It creates a fresh new user.
       description: >
@@ -172,10 +176,10 @@ paths:
                 - password
                 - registered
       responses:
-        "201":
+        201:
           description: The user has been correctly created.
-        "400":
-          description: Request was not well-formed.
+        400:
+          description: The request is malformed.
 
     get:
       summary: It returns all active customers, in a paginated fashion.
@@ -197,7 +201,7 @@ paths:
             type: integer
           required: false
       responses:
-        "200":
+        200:
           description: The user array has been correctly delivered.
           content:
             application/json:
@@ -220,10 +224,12 @@ paths:
                       type: string
                     registered:
                       type: boolean
-        "401":
+        400:
+          description: The request is malformed.
+        401:
           description: The admin was not correctly authenticated.
 
-  /api/auth/customers/signup/:
+  /api/auth/customers/register:
     post:
       summary: Allows a customer to be registered inside the app.
       requestBody:
@@ -269,78 +275,213 @@ paths:
                 required:
                   - id
                   - jwt
-
-        "400":
+        400:
           description: The request is malformed, or the user is present yet.
 
 
-  /api/auth/customers/signin/:
-    get:
-      summary: This root allows a user to login in
-      description: none
+  /api/auth/customers/login:
+    put:
+      summary: Allows a customer to be authenticated inside the app.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+                - email
+                - password
       responses:
-        "200":
-          description: OK
-        "400":
-          description: FAIL
-        "403":
-          description: Unauthorized
+        200:
+          description: The customer has been correctly authenticated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  surname:
+                    type: string
+                  phone:
+                    type: string
+                  address:
+                    type: string
+                  registered:
+                    type: boolean
+                  jwt:
+                    type: string
+        400:
+          description: The request is malformed.
+        401:
+          description: The email-password combination is not correct.
 
-
-  /api/auth/admin/signup/:
+  /api/auth/admin/register:
     post:
-      summary: This root allows the admiun to sign up
-      description: none
+      summary: Allows an admin to be registered inside the app.
+      description: An admin can only be created by the root user
+      security:
+        - rootAuth: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - password
       responses:
-        "200":
-          description: OK
-        "400":
-          description: FAIL
-        "403":
-          description: Unauthorized
+        200:
+          description: The customer has been correctly authenticated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  username:
+                    type: string
+                  jwt:
+                    type: string
 
-  /api/auth/admin/signin/:
-    get:
-      summary: This root allows the admin to login in
-      description: none
+                required:
+                  - id
+                  - username
+                  - jwt
+        400:
+          description: The request is malformed, or the user is present yet.
+        401:
+          description: The client is not root, or email-password combination of the root is wrong.
+
+  /api/auth/admin/login:
+    put:
+      summary: Allows an admin to be authenticated inside the app.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - email
+                - password
       responses:
-        "200":
-          description: OK
-        "400":
-          description: FAIL
-        "403":
-          description: Unauthorized
+        200:
+          description: The admin has been correctly authenticated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  username:
+                    type: string
+                  jwt:
+                    type: string
+                required:
+                  - id
+                  - jwt
+        400:
+          description: The request is malformed.
+        401:
+          description: The email-password combination is not correct.
 
 
-  /api/feed/:
+  /api/news:
     get:
-      summary: It returns the of the page-id page
-      description: Feed
+      summary: Returns the most recent news, in a pgainated fashion.
       parameters:
-        - name: page_id
+        - name: page-id
           in: query
-          description: Page identificator. If speficied, only bookings relative to the page are returned.
-          required: false
-          style: form
-          explode: true
+          description: >
+            It indicates which one of the incremental paginated results will be delivered. If omitted, default is 0.
           schema:
             type: integer
-
-        - name: page_size
-          in: query
-          description: It specifies that the returned booking are only of the number given.
           required: false
-          style: form
-          explode: true
+        - name: page-size
+          in: query
+          description: >
+            It indicates the maximum size of the results. If omitted, default is 10.
           schema:
             type: integer
+          required: false
       responses:
-        "200":
-          description: OK
-        "400":
-          description: FAIL
-        "403":
-          description: Unauthorized
+        200:
+          description: The news array has been correctly delivered.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    image-url:
+                      type: string
+                    date:
+                      type: string
+                    title:
+                      type: string
+                    article:
+                      type: string
+        400:
+          description: The request was malformed.
+
+  /api/news/{news-id}:
+    get:
+      summary: Returns the specified news.
+      parameters:
+        - name: news-id
+          in: path
+          description: It identifies the news.
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+
+      responses:
+        200:
+          description: The news has been correctly delivered.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  image-url:
+                    type: string
+                  date:
+                    type: string
+                  title:
+                    type: string
+                  article:
+                    type: string
+        400:
+          description: The request was malformed.
 
   /api/bookings/:
     get:
