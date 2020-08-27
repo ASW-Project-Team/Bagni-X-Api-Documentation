@@ -168,7 +168,7 @@ paths:
               required:
                 - name
                 - surname
-                  - email
+                - email
                 - password
                 - registered
       responses:
@@ -225,18 +225,57 @@ paths:
 
   /api/auth/customers/signup/:
     post:
-      summary: This root allows a user to sign up
-      description: none
+      summary: Allows a customer to be registered inside the app.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                name:
+                  type: string
+                surname:
+                  type: string
+                phone:
+                  type: string
+                address:
+                  type: string
+                registered:
+                  type: boolean
+              required:
+                - name
+                - surname
+                - email
+                - password
+                - registered
       responses:
-        "200":
-          description: OK
-        "400":
-          description: FAIL
-        "403":
-          description: Unauthorized
+        200:
+          description: The customer has been correctly authenticated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  jwt:
+                    type: string
 
-  /api/auth/user/signin/:
-    post:
+                required:
+                  - id
+                  - jwt
+
+        "400":
+          description: The request is malformed, or the user is present yet.
+
+
+  /api/auth/customers/signin/:
+    get:
       summary: This root allows a user to login in
       description: none
       responses:
@@ -261,7 +300,7 @@ paths:
           description: Unauthorized
 
   /api/auth/admin/signin/:
-    post:
+    get:
       summary: This root allows the admin to login in
       description: none
       responses:
