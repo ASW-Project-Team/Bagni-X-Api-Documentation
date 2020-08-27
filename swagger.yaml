@@ -7,22 +7,26 @@ servers:
   - url: http://localhost:3000
 components:
   securitySchemes:
-    specificUserAuth:
+    specificCustomerAuth:
+      description: The endpoint can be accessed only by the one proprietaty customer.
       type: http
       scheme: bearer
       bearerFormat: JWT
 
-    userAuth:
+    customerAuth:
+      description: The endpoint can be accessed by all the authenticated customers.
       type: http
       scheme: bearer
       bearerFormat: JWT
 
     adminAuth:
+      description: The endpoint can be accessed by all the authenticated admins.
       type: http
       scheme: bearer
       bearerFormat: JWT
 
     rootAuth:
+      description: The endpoint can be accessed only by the one root admin.
       type: http
       scheme: bearer
       bearerFormat: JWT
@@ -65,10 +69,8 @@ paths:
                     type: string
                   registered:
                     type: boolean
-        "400":
-          description: FAIL
         "401":
-          description: Unauthorized access, the client is not the authorized user, neither an admin.
+          description: Wrong credentials, or customer that is not the interested one, neither an admin.
         "404":
           description: The user with the given id does not exist, or it has been logically deleted.
 
@@ -76,7 +78,7 @@ paths:
       summary: Request of modification for some fields of the given user.
       description: >
         The modification request with the PUT can be executed by the interested user. Logical deletion of
-        the user can be executed by the admin using the DELETE primitive.
+        the user can be executed using the DELETE primitive.
       security:
         - specificUserAuth: []
       parameters:
@@ -107,17 +109,35 @@ paths:
                   type: string
                 password:
                   type: string
-                deleted:
-                  type: boolean
       responses:
         "200":
           description: The modification has been accepted by the server.
         "400":
           description: Malformed request.
         "401":
-          description: Unauthorized, the given credentials do not correspond to the correce credentials of the user.
+          description: Wrong credentials, or customer that is not the interested one.
         "404":
           description: The user with the given id does not exist, or it has been logically deleted.
+
+    delete:
+      summary: It triggers the logic deletion of a user.
+      security:
+        - specificUserAuth: []
+        - adminAuth: []
+        parameters:
+          - name: user-id
+            in: path
+            description: User identificator
+            required: true
+            style: simple
+            explode: false
+            schema:
+              type: string
+      responses:
+        200:
+          description: The customer has been correctly deleted.
+        401:
+          description: Wrong credentials, or customer that is not the interested one, neither an admin.
 
   /api/customers/:
     post:
