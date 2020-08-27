@@ -124,15 +124,15 @@ paths:
       security:
         - specificCustomerAuth: []
         - adminAuth: []
-        parameters:
-          - name: user-id
-            in: path
-            description: User identificator
-            required: true
-            style: simple
-            explode: false
-            schema:
-              type: string
+      parameters:
+        - name: user-id
+          in: path
+          description: User identificator
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
       responses:
         200:
           description: The customer has been correctly deleted.
