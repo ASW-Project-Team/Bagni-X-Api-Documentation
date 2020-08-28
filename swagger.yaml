@@ -11,8 +11,9 @@ servers:
 
 tags:
   - name: Customers
-    description: >
-      Endpoints used to retrieve data about customers of the bathhouse.
+    description: Endpoints used to retrieve data about customers of the bathhouse.
+  - name: Admin
+    description: Endpoints used to modify the admin table.
   - name: Authentication
     description: Endpoints used for authentication purposes.
   - name: News
@@ -36,6 +37,12 @@ components:
 
     customerAuth:
       description: The endpoint can be accessed by all the authenticated customers.
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+    specificAdminAuth:
+      description: The endpoint can be accessed only by the one proprietaty admin.
       type: http
       scheme: bearer
       bearerFormat: JWT
@@ -426,6 +433,141 @@ paths:
           description: The request is malformed.
         401:
           description: The admin was not correctly authenticated.
+
+  /api/admin:
+    get:
+      summary: Returns the list of active admins.
+      tags:
+        - Admin
+      security:
+        - rootAuth: []
+      responses:
+        200:
+          description: The server returned the admin list.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: "8078907"
+                    username:
+                      type: string
+                      example: "maldins46"
+
+        400:
+          description: Malformed request.
+        401:
+          description: The admin was not correctly authenticated.
+        404:
+          description: An admin with the given id does not exist.
+
+  /api/admin/{admin-id}:
+    get:
+      summary: Returns data about the admin.
+      tags:
+        - Admin
+      security:
+        - specificAdminAuth: []
+        - rootAuth: []
+      parameters:
+        - name: admin-id
+          in: path
+          description: A string that univocally identifies the admin.
+          required: true
+          explode: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: The server returned the specified admin.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "8078907"
+                  username:
+                    type: string
+                    example: "maldins46"
+                  
+        400:
+          description: Malformed request.
+        401:
+          description: The admin was not correctly authenticated.
+        404:
+          description: An admin with the given id does not exist.
+    put:
+      summary: It allows the modification of an admin.
+      tags:
+        - Admin
+      security:
+        - specificAdminAuth: []
+        - rootAuth: []
+      parameters:
+        - name: admin-id
+          in: path
+          description: A string that univocally identifies the admin.
+          required: true
+          explode: true
+          schema:
+            type: string
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: "8078907"
+                username:
+                  type: string
+                  example: "maldins46"
+                password:
+                  type: string
+                  example: "mySecretPassword18!"
+      responses:
+        200:
+          description: All fields are corrected, the item has been modified.
+        400:
+          description: Malformed request.
+        401:
+          description: The admin was not correctly authenticated.
+        404:
+          description: An admin with the given id does not exist.
+
+    delete:
+      summary: It allows admin deletion, by the root admin.
+      tags:
+        - Admin
+      security:
+        - rootAuth: []
+      parameters:
+        - name: admin-id
+          in: path
+          description: A string that univocally identifies the admin.
+          required: true
+          explode: true
+          schema:
+            type: string
+
+      responses:
+        200:
+          description: The admin has been correctly removed.
+        400:
+          description: Malformed request.
+        401:
+          description: The root was not correctly authenticated.
+        404:
+          description: A admin with the given id does not exist.
 
   /api/auth/customers/register:
     post:
@@ -1362,5 +1504,5 @@ paths:
         404:
           description: A Service with the given id does not exist.
 
-  #   /stats/:
-  #    description: robe
+  # /stats/:
+
