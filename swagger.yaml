@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: Bagni X Booking System API
+  title: Bagni X API documentation
   description: >
     API documentation for the 2020 ASW project of [Riccardo Maldini](https://github.com/maldins46),
     [Francesco Gorini](https://github.com/francescogorini) and [Thomas Angelini](https://github.com/ThomasAngeliniUnibo).
@@ -115,7 +115,7 @@ components:
         id:
           type: string
           example: "458124"
-        image-url:
+        imageUrl:
           type: string
           example: "http://localhost:3000/image.jpg"
         date:
@@ -129,11 +129,12 @@ components:
           example: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt."
 
     ShortNews:
+      type: object
       properties:
         id:
           type: string
           example: "458124"
-        image-url:
+        imageUrl:
           type: string
           example: "http://localhost:3000/image.jpg"
         date:
@@ -146,6 +147,118 @@ components:
           description: "The article, truncated at 120 characters."
           type: string
           example: "Lorem ipsum dolor sit amet, consectetur adipiscing..."
+
+    Sale:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "234089"
+        percent:
+          type: number
+          example: 20
+        dateFrom:
+          type: string
+          example: "2014-01-01T23:28:56.782Z"
+        dateTo:
+          type: string
+          example: "2014-01-01T23:28:56.782Z"
+
+    RankUmbrella:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Prima fila"
+        description:
+          type: string
+          example: "I migliori ombrelloni."
+        image:
+          type: string
+          example: "http://localhost:3000/image.jpg"
+        price:
+          type: number
+          example: 12.23
+        fromUmbrella:
+          type: integer
+          example: 1
+        toUmbrella:
+          type: integer
+          example: 20
+        sales:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sale'
+
+    Umbrella:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "0986"
+        number:
+          type: integer
+          example: 12
+        rank:
+          $ref: '#/components/schemas/RankUmbrella'
+
+    Service:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "4554"
+        name:
+          type: string
+          example: "Cabina"
+        description:
+          type: string
+          example: "Aggiungi una cabina alla tua prenotazione per porre le tue cose in sicurezza."
+        price:
+          type: number
+          example: 12.23
+        imageUrl:
+          type: string
+          example: "http://localhost:3000/image.jpg"
+        umbrellaRelated:
+          type: boolean
+          example: true
+
+    Booking:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "4620"
+        userId:
+          type: string
+          example: "4726"
+        confirmed:
+          description: refers to the confirmation of the booking from an admin.
+          type: boolean
+          example: true
+        cancelled:
+          description: Refers to the logical deletion of a booking.
+          type: boolean
+          example: true
+        price:
+          type: number
+          example: 140.34
+        dateFrom:
+          type: string
+          example: "2014-01-01T23:28:56.782Z"
+        dateTo:
+          type: string
+          example: "2014-01-01T23:28:56.782Z"
+        umbrellas:
+          type: array
+          items:
+            $ref: '#/components/schemas/Umbrella'
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/Service'
+
 
   requestBodies:
     CustomerBody:
@@ -305,7 +418,7 @@ paths:
       requestBody:
         $ref: '#/components/requestBodies/CustomerBody'
       responses:
-        200:
+        201:
           description: The customer has been correctly authenticated.
           content:
             application/json:
@@ -329,7 +442,6 @@ paths:
                     example: "asdòkdasjfhdf87fafbhe897aa8dbaB"
         400:
           description: The request is malformed, or the customer is present yet.
-
 
   /api/auth/customers/login:
     put:
@@ -400,7 +512,7 @@ paths:
                   type: string
                   example: "mySuperSecretPassword18!"
       responses:
-        200:
+        201:
           description: The customer has been correctly authenticated.
           content:
             application/json:
@@ -461,7 +573,6 @@ paths:
         401:
           description: The email-password combination is not correct.
 
-
   /api/news:
     get:
       summary: Returns the most recent news, in a paginated fashion.
@@ -493,6 +604,7 @@ paths:
                   $ref: '#/components/schemas/ShortNews'
         400:
           description: The request was malformed.
+
     post:
       summary: Creates a fresh news.
       description: The "id" field, if present, will be ignored, and assigned a new one to the news.
@@ -596,57 +708,103 @@ paths:
         404:
           description: The news with the given id does not exist.
 
-  /api/bookings/:
+  /api/bookings:
     get:
-      summary: It returns some bookings, related optionally to a user. If page size is not specified, the first 10 are returned.
-      description: Bookings
-      tags:
-        - Booking
-      parameters:
-        - name: user_id
-          in: query
-          description: User identificator. If the parameter is present, bookings from the specified user are returned.
-          required: false
-          explode: false
-          schema:
-            type: string
-
-        - name: page_id
-          in: query
-          description: Page identificator. If speficied, only bookings relative to the page are returned.
-          required: false
-          style: form
-          explode: true
-          schema:
-            type: integer
-
-        - name: page_size
-          in: query
-          description: It specifies that the returned booking are only of the number given.
-          required: false
-          style: form
-          explode: true
-          schema:
-            type: integer
-
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: FAIL
-        "403":
-          description: Unauthorized
-
-  /api/bookings/{booking-id}/:
-    get:
-      summary: It returns the booking with id booking_id
-      description: Booking
+      summary: It returns all the bookings, in a paginated fashion, in inverse chronological order.
       tags:
         - Bookings
+      security:
+        - adminAuth: []
+      parameters:
+        - name: page-id
+          in: query
+          description: >
+            It indicates which one of the incremental paginated results will be delivered. If omitted, default is 0.
+          schema:
+            type: integer
+          required: false
+        - name: page-size
+          in: query
+          description: >
+            It indicates the maximum size of the results. If omitted, default is 10.
+          schema:
+            type: integer
+          required: false
+
+      responses:
+        200:
+          description: The booking array has been correctly delivered.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+        400:
+          description: The request is malformed.
+        401:
+          description: The admin was not correctly authenticated.
+
+
+  /api/bookings/customer/{customer-id}:
+    get:
+      summary: It returns all the bookings of a specified customer, in a paginated fashion, in inverse chronological order.
+      description: A different endpoint is necessary to handle authorization constraints more easily.
+      tags:
+        - Bookings
+      security:
+        - adminAuth: []
+        - specificCustomerAuth: []
+      parameters:
+        - name: customer-id
+          in: path
+          description: It indicates the id of the customer.
+          schema:
+            type: integer
+          required: true
+        - name: page-id
+          in: query
+          description: >
+            It indicates which one of the incremental paginated results will be delivered. If omitted, default is 0.
+          schema:
+            type: integer
+          required: false
+        - name: page-size
+          in: query
+          description: >
+            It indicates the maximum size of the results. If omitted, default is 10.
+          schema:
+            type: integer
+          required: false
+
+      responses:
+        200:
+          description: The booking array has been correctly delivered.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+        400:
+          description: The request is malformed.
+        401:
+          description: The user was not correctly authenticated, or the authenticated customer is not the interested one.
+        404:
+          description: The user is not present in the database.
+
+  /api/bookings/{booking-id}:
+    get:
+      summary: It returns the booking with the specified id.
+      tags:
+        - Bookings
+      security:
+        - adminAuth: []
+        - specificUserAuth: []
       parameters:
         - name: booking-id
           in: path
-          description: Booking identificator
+          description: It identifies the booking.
           required: true
           style: simple
           explode: false
@@ -654,74 +812,100 @@ paths:
             type: string
 
       responses:
-        "200":
-          description: OK
-        "400":
-          description: FAIL
-        "403":
-          description: Unauthorized
+        200:
+          description: The booking has been correctly delivered.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+
+        400:
+          description: The request is malformed.
+        401:
+          description: >
+            The email-password combination is wrong, the admin was not correctly authenticated, or the customer is not the interested one.
+        404:
+          description: Booking not found. It should be always returned, also if logically deleted.
     put:
-      summary: It allows the user to modify the booking
-      description: Booking
+      summary: It allows the the admin to modify a booking.
+      description: >
+        The booking modification can only be completed by an admin. Once created a booking, a customer cannot modify it,
+        and can only delete it at least 2 days before the booking, using the DELETE primitive. Unlike that primitive,
+        the PUT can be used by the admin also to delete the booking (by setting the cancelled flag to true), in the last
+        two days before the booking.
       tags:
         - Bookings
+      security:
+        - adminAuth: []
       parameters:
         - name: booking-id
           in: path
-          description: Booking identificator
+          description: It univocally identifies the booking.
           required: true
           style: simple
           explode: false
           schema:
             type: string
       responses:
-        "200":
-          description: OK
-        "400":
-          description: FAIL
-        "403":
-          description: Unauthorized
+        200:
+          description: The booking has been correctly modified.
+        400:
+            description: The request is malformed.
+        401:
+          description: The admin was not correctly authenticated.
+        404:
+          description: Booking not found.
+
     delete:
-      summary: It deletes a reservation
-      description: Modifica-aggiunta prenotazione
+      summary: It deletes a reservation, at least two days before the booking
       tags:
         - Bookings
+      security:
+        - specifiedUserAuth: []
+        - adminAuth: []
       parameters:
         - name: booking-id
           in: path
-          description: Booking identificator
+          description: It univocally identifies the booking.
           required: true
           style: simple
           explode: false
           schema:
             type: string
       responses:
-        "200":
-          description: OK
-        "400":
-          description: FAIL
-        "403":
-          description: Unauthorized
+        200:
+          description: The booking has been correctly deleted.
+        400:
+            description: The request is malformed.
+        401:
+            description: The specified customer, or the admin, is not correctly authenticated.
+        404:
+            description: Booking not found.
 
-  /api/new-booking/availability/:
+  /api/new-booking/availability:
     get:
-      summary: It returns all the available places in the period, also available selectable services, rank linked to every umbrella
-      description: New booking
+      summary: It returns all available umbrellas in the specified period.
+      description: >
+        This endpoint is part of the flow used to create a new booking. As such, it is accessible only by
+        customers and admins.
+      security:
+        - adminAuth: []
+        - customerAuth: []
       tags:
         - Bookings
       parameters:
-        - name: from
+        - name: date-from
           in: query
-          description: Start booking date
+          description: The date from which search available umbrellas.
           required: true
           style: form
           explode: true
           schema:
             type: string
 
-        - name: to
+        - name: date-to
           in: query
-          description: End booking date
+          description: The date to which search available umbrellas.
           required: true
           style: form
           explode: true
@@ -736,7 +920,7 @@ paths:
         "403":
           description: Unauthorized
 
-  /api/new-booking/checkout/:
+  /api/new-booking/checkout:
     post:
       summary: All fields of a booking, i.e. umbrella id, services, price, ecc.
       description: It allows the user to book a site
@@ -750,7 +934,7 @@ paths:
         "403":
           description: Unauthorized
 
-  /api/home/:
+  /api/home:
     get:
       summary: The main home card, an array of home cards, an array of services, and an array of rank umbrellas.
       description: Used in the home screen
