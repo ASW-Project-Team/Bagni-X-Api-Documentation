@@ -4,7 +4,7 @@ info:
   description: >
     API documentation for the 2020 ASW project of [Riccardo Maldini](https://github.com/maldins46),
     [Francesco Gorini](https://github.com/francescogorini) and [Thomas Angelini](https://github.com/ThomasAngeliniUnibo).
-  version: "0.1"
+  version: "1.0"
 
 servers:
   - url: http://localhost:3000
