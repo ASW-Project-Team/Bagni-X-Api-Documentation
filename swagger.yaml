@@ -846,6 +846,12 @@ paths:
           explode: false
           schema:
             type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Booking'
       responses:
         200:
           description: The booking has been correctly modified.
@@ -918,36 +924,43 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    name:
-                      type: string
-                      example: "Prima fila"
-                    description:
-                      type: string
-                      example: "I migliori ombrelloni."
-                    image:
-                      type: string
-                      example: "http://localhost:3000/image.jpg"
-                    price:
-                      type: number
-                      example: 12.23
-                    fromUmbrella:
-                      type: integer
-                      example: 1
-                    toUmbrella:
-                      type: integer
-                      example: 20
-                    sales:
-                      type: array
-                      items:
-                        $ref: '#/components/schemas/Sale'
-                    availableUmbrellas:
-                      type: array
-                      items:
-                        $ref: '#/components/schemas/Umbrella'
+                type: object
+                properties:
+                  rankUmbrellas:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          example: "Prima fila"
+                        description:
+                          type: string
+                          example: "I migliori ombrelloni."
+                        image:
+                          type: string
+                          example: "http://localhost:3000/image.jpg"
+                        price:
+                          type: number
+                          example: 12.23
+                        fromUmbrella:
+                          type: integer
+                          example: 1
+                        toUmbrella:
+                          type: integer
+                          example: 20
+                        sales:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/Sale'
+                        availableUmbrellas:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/Umbrella'
+                  services:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Service'
         400:
           description: The request is malformed.
         401:
@@ -965,9 +978,15 @@ paths:
         - customerAuth: []
       tags:
         - Bookings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Booking'
       responses:
         201:
-          description: The booking was successful inserted into the database.
+          description: The booking was successfully inserted into the database.
         400:
           description: The request is malformed.
         401:
