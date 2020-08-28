@@ -1257,134 +1257,110 @@ paths:
         404:
           description: A RankUmbrella with the given id does not exist.
 
-  #/catalog/sales/:
-  #  get:
-  #    parameters:
-  #      - name: rank_id
-  #        in: query
-  #        description: Rank to refer for the sale
-  #        required: false
-  #        style: form
-  #        explode: true
-  #        schema:
-  #          type: string
-
-  #      - name: page_id
-  #        in: query
-  #        description: Page identificator. If speficied, only sales relative to the page are returned.
-  #        required: false
-  #        style: form
-  #        explode: true
-  #        schema:
-  #          type: integer
-
-  #      - name: page_size
-  #        in: query
-  #        description: It specifies that the returned salews are only of the number given.
-  #        required: false
-  #        style: form
-  #        explode: true
-  #        schema:
-  #           type: integer
-  #  post:
-
-  #  /catalog/sales/:id:
-  #    get:
-  #      parameters:
-  #        - name: sale_id
-  #          in: path
-  #          description: Id to refer for the sale
-  #          required: false
-  #          style: form
-  #          explode: true
-  #          schema:
-  #            type: string
-  #    put:
-  #      parameters:
-  #        - name: sale_id
-  #          in: path
-  #          description: Id to refer for the sale
-  #          required: false
-  #          style: form
-  #          explode: true
-  #          schema:
-  #            type: string
-
-  /api/catalog/services/:
-    get:
-      summary: The services are some options that a user can insert in a new booking
-      description: It returns all the services availables
-      parameters:
-        - name: page_id
-          in: query
-          description: Page identificator. If speficied, only services relative to the page are returned.
-          required: false
-          style: form
-          explode: true
-          schema:
-            type: integer
-        - name: page_size
-          in: query
-          description: It specifies that the returned salews are only of the number given.
-          required: false
-          style: form
-          explode: true
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: FAIL
-        "403":
-          description: Unauthorized
+  /api/catalog/services:
     post:
-      summary: The services are some options that a user can insert in a new booking
-      description: It allows the admin to insert a new service
+      summary: It allows the admin to insert a new Service into the database.
+      tags:
+        - Catalog
+      security:
+        - adminAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service'
       responses:
-        "200":
-          description: OK
-        "400":
-          description: FAIL
-        "403":
-          description: Unauthorized
+        201:
+          description: All fields are corrected, the item has been inserted.
+        400:
+          description: Malformed request.
+        401:
+          description: The admin was not correctly authenticated.
 
-  /api/catalog/services/{service-id}/:
+  /api/catalog/services/{rank-id}:
     get:
-      summary: The services are some options that a user can insert in a new booking
-      description: It returns a specified service
+      summary: It allows the admin to access a specified Service.
+      tags:
+        - Catalog
+      security:
+        - adminAuth: []
       parameters:
-        - name: service-id
+        - name: rank-id
           in: path
-          description: Service id
+          description: A string that univocally identifies the Service.
           required: true
           explode: true
           schema:
-            type: integer
+            type: string
       responses:
-        "200":
-          description: OK
-        "400":
-          description: FAIL
-        "403":
-          description: Unauthorized
+        200:
+          description: The server returned the specified Service.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+        400:
+          description: Malformed request.
+        401:
+          description: The admin was not correctly authenticated.
+        404:
+          description: A Service with the given id does not exist.
     put:
-      summary: The services are some options that a user can insert in a new booking
-      description: It allows the admin to modify a service
+      summary: It allows the admin to modify a new Service.
+      tags:
+        - Catalog
+      security:
+        - adminAuth: []
       parameters:
-        - name: service-id
+        - name: rank-id
           in: path
-          description: Service id
+          description: A string that univocally identifies the Service.
           required: true
           explode: true
           schema:
-            type: integer
+            type: string
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service'
       responses:
-        "200":
-          description: OK
-        "400":
-          description: FAIL
-        "403":
-          description: Unauthorized
+        200:
+          description: All fields are corrected, the item has been modified.
+        400:
+          description: Malformed request.
+        401:
+          description: The admin was not correctly authenticated.
+        404:
+          description: A Service with the given id does not exist.
+
+    delete:
+      summary: It allows the admin to delete a Service.
+      tags:
+        - Catalog
+      security:
+        - adminAuth: []
+      parameters:
+        - name: rank-id
+          in: path
+          description: A string that univocally identifies the Service.
+          required: true
+          explode: true
+          schema:
+            type: string
+
+      responses:
+        200:
+          description: The Service has been correctly removed.
+        400:
+          description: Malformed request.
+        401:
+          description: The admin was not correctly authenticated.
+        404:
+          description: A Service with the given id does not exist.
+
   #   /stats/:
   #    description: robe
