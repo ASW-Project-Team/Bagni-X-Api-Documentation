@@ -259,6 +259,22 @@ components:
           items:
             $ref: '#/components/schemas/Service'
 
+    HomeCard:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "0986"
+        title:
+          type: string
+          example: "Benvenuto nello stabilimento Bagni X!"
+        description:
+          type: string
+          example: "Gotiti la vacanza in questo magico stabilimento!"
+        main:
+          type: boolean
+          example: false
+
 
   requestBodies:
     CustomerBody:
@@ -800,7 +816,7 @@ paths:
         - Bookings
       security:
         - adminAuth: []
-        - specificUserAuth: []
+        - specificCustomerAuth: []
       parameters:
         - name: booking-id
           in: path
@@ -867,7 +883,7 @@ paths:
       tags:
         - Bookings
       security:
-        - specifiedUserAuth: []
+        - specificCustomerAuth: []
         - adminAuth: []
       parameters:
         - name: booking-id
@@ -994,17 +1010,144 @@ paths:
 
   /api/home:
     get:
-      summary: The main home card, an array of home cards, an array of services, and an array of rank umbrellas.
-      description: Used in the home screen
+      summary: It returns information shown inside the home screen of the app.
       tags:
         - Home
       responses:
-        "200":
-          description: OK, all fields of the confirmed booking, included the id
-        "400":
-          description: FAIL
-        "403":
-          description: Unauthorized
+        200:
+          description: The query was correctly served.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mainCard:
+                    $ref: '#/components/schemas/HomeCard'
+                  homeCards:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/HomeCard'
+                  rankUmbrellas:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RankUmbrella'
+                  services:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Service'
+        400:
+          description: The request is malformed.
+
+  /api/home-card:
+    post:
+      summary: Inserts an home card into the database.
+      description: The id field is not required inside the body. If present, it will be ignored, and created a new one.
+      tags:
+        - Home
+      security:
+        - adminAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HomeCard'
+      responses:
+        200:
+          description: The modification has been accepted by the server.
+        400:
+          description: The request is malformed.
+        401:
+          description: The admin was not correctly authenticated.
+        404:
+          description: The home card with the given id does not exist.
+
+  /api/home-card/{home-card-id}:
+    get:
+      summary: It returns the requested home card.
+      tags:
+        - Home
+      security:
+        - adminAuth: []
+      parameters:
+        - name: home-card-id
+          in: path
+          description: It identifies univolcally the home card.
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: The server returned the desired data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HomeCard'
+        400:
+          description: The request is malformed.
+        401:
+          description: The admin was not correctly authenticated.
+        404:
+          description: The home card with the given id does not exist.
+
+    put:
+      summary: Request of modification for some fields of the given home card.
+      tags:
+        - Home
+      security:
+        - adminAuth: []
+      parameters:
+        - name: home-card-id
+          in: path
+          description: It identifies univolcally the home card.
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HomeCard'
+      responses:
+        200:
+          description: The modification has been accepted by the server.
+        400:
+          description: The request is malformed.
+        401:
+          description: The admin was not correctly authenticated.
+        404:
+          description: The home card with the given id does not exist.
+
+    delete:
+      summary: Request of deletion for the given home card.
+      tags:
+        - Home
+      security:
+        - adminAuth: []
+      parameters:
+        - name: home-card-id
+          in: path
+          description: It identifies univolcally the home card.
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+
+      responses:
+        200:
+          description: The deletion has been accepted by the server.
+        400:
+          description: The request is malformed.
+        401:
+          description: The admin was not correctly authenticated.
+        404:
+          description: The home card with the given id does not exist.
 
   /api/catalog/ranks/:
     post:
