@@ -444,7 +444,7 @@ paths:
           description: The request is malformed, or the customer is present yet.
 
   /api/auth/customers/login:
-    put:
+    post:
       summary: Allows a customer to be authenticated inside the app.
       tags:
         - Authentication
@@ -534,7 +534,7 @@ paths:
           description: The client is not root, or email-password combination of the root is wrong.
 
   /api/auth/admin/login:
-    put:
+    post:
       summary: Allows an admin to be authenticated inside the app.
       tags:
         - Authentication
