@@ -23,6 +23,8 @@ tags:
     description: Enpoints used to access and modify booking information.
   - name: Catalog
     description: Endpoint used to access and modify information about offered services.
+  - name: Stats
+    description: Endpoint used to access forecast information and statistics on the progress of the season.
 
 components:
   securitySchemes:
@@ -276,15 +278,6 @@ components:
           example: false
 
 
-  requestBodies:
-    CustomerBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/CustomerWithPassword'
-
-
 paths:
   /api/customers/{customer-id}:
     get:
@@ -336,7 +329,11 @@ paths:
           schema:
             type: string
       requestBody:
-        $ref: '#/components/requestBodies/CustomerBody'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerWithPassword'
       responses:
         200:
           description: The modification has been accepted by the server.
@@ -384,7 +381,11 @@ paths:
       security:
         - adminAuth: []
       requestBody:
-        $ref: '#/components/requestBodies/CustomerBody'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerWithPassword'
       responses:
         201:
           description: The user has been correctly created.
@@ -432,7 +433,11 @@ paths:
       tags:
         - Authentication
       requestBody:
-        $ref: '#/components/requestBodies/CustomerBody'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
       responses:
         201:
           description: The customer has been correctly authenticated.
@@ -761,7 +766,6 @@ paths:
         401:
           description: The admin was not correctly authenticated.
 
-
   /api/bookings/customer/{customer-id}:
     get:
       summary: It returns all the bookings of a specified customer, in a paginated fashion, in inverse chronological order.
@@ -982,7 +986,6 @@ paths:
         401:
           description: The user was not correctly authenticated.
 
-
   /api/new-booking/checkout:
     post:
       summary: It creates a new booking.
@@ -1149,56 +1152,110 @@ paths:
         404:
           description: The home card with the given id does not exist.
 
-  /api/catalog/ranks/:
+  /api/catalog/rank-umbrellas:
     post:
-      summary: The rank of the umbrella
-      description: It allows to insert a new rank
+      summary: It allows the admin to insert a new RankUmbrella into the database.
+      tags:
+        - Catalog
+      security:
+        - adminAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RankUmbrella'
       responses:
-        "200":
-          description: OK, all fields of the confirmed booking, included the id
-        "400":
-          description: FAIL
-        "403":
-          description: Unauthorized
+        201:
+          description: All fields are corrected, the item has been inserted.
+        400:
+          description: Malformed request.
+        401:
+          description: The admin was not correctly authenticated.
 
-  /api/catalog/ranks/{rank-id}/:
-    put:
-      summary: The rank of the umbrella
-      description: It allows to modify a rank
-      responses:
-        "200":
-          description: OK, all fields of the confirmed booking, included the id
-        "400":
-          description: FAIL
-        "403":
-          description: Unauthorized
+  /api/catalog/rank-umbrellas/{rank-id}:
+    get:
+      summary: It allows the admin to access a specified RankUmbrella.
+      tags:
+        - Catalog
+      security:
+        - adminAuth: []
       parameters:
         - name: rank-id
           in: path
-          description: The id of the rank
+          description: A string that univocally identifies the rankUmbrella.
+          required: true
+          explode: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: The server returned the specified RankUmbrella.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RankUmbrella'
+        400:
+          description: Malformed request.
+        401:
+          description: The admin was not correctly authenticated.
+        404:
+          description: A RankUmbrella with the given id does not exist.
+    put:
+      summary: It allows the admin to modify a new RankUmbrella.
+      tags:
+        - Catalog
+      security:
+        - adminAuth: []
+      parameters:
+        - name: rank-id
+          in: path
+          description: A string that univocally identifies the rankUmbrella.
           required: true
           explode: true
           schema:
             type: string
 
-    get:
-      summary: The rank of the umbrella
-      description: It return a specified rank
-      responses:
-        "200":
-          description: OK, all fields of the confirmed booking, included the id
-        "400":
-          description: FAIL
-        "403":
-          description: Unauthorized
-    parameters:
-      - name: rank-id
-        in: path
-        description: The id of the rank
+      requestBody:
         required: true
-        explode: true
-        schema:
-          type: string
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RankUmbrella'
+      responses:
+        200:
+          description: All fields are corrected, the item has been modified.
+        400:
+          description: Malformed request.
+        401:
+          description: The admin was not correctly authenticated.
+        404:
+          description: A RankUmbrella with the given id does not exist.
+
+    delete:
+      summary: It allows the admin to delete a RankUmbrella.
+      tags:
+        - Catalog
+      security:
+        - adminAuth: []
+      parameters:
+        - name: rank-id
+          in: path
+          description: A string that univocally identifies the rankUmbrella.
+          required: true
+          explode: true
+          schema:
+            type: string
+
+      responses:
+        200:
+          description: The RankUmbrella has been correctly removed.
+        400:
+          description: Malformed request.
+        401:
+          description: The admin was not correctly authenticated.
+        404:
+          description: A RankUmbrella with the given id does not exist.
 
   #/catalog/sales/:
   #  get:
