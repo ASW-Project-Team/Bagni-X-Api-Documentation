@@ -648,9 +648,7 @@ paths:
                     type: string
                     example: "asdòkdasjfhdf87fafbhe897aa8dbaB"
         400:
-          description: The request is malformed.
-        401:
-          description: The email-password combination is not correct.
+          description: The request is malformed, or email/pw combination is not correct.
 
   /api/auth/admin/register:
     post:
@@ -732,9 +730,8 @@ paths:
                     type: string
                     example: "asdòkdasjfhdf87fafbhe897aa8dbaB"
         400:
-          description: The request is malformed.
-        401:
-          description: The email-password combination is not correct.
+          description: The request is malformed, or email/pw combination is not correct.
+
 
   /api/news:
     get:
