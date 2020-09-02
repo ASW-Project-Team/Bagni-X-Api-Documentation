@@ -495,7 +495,7 @@ paths:
                   username:
                     type: string
                     example: "maldins46"
-                  
+
         400:
           description: Malformed request.
         401:
@@ -1314,6 +1314,41 @@ paths:
           description: The home card with the given id does not exist.
 
   /api/catalog/rank-umbrellas:
+    get:
+      summary: It returns all active rankings, in a paginated fashion.
+      tags:
+        - Catalog
+      security:
+        - adminAuth: []
+      parameters:
+        - name: page-id
+          in: query
+          description: >
+            It indicates which one of the incremental paginated results will be delivered. If omitted, default is 0.
+          schema:
+            type: integer
+          required: false
+        - name: page-size
+          in: query
+          description: >
+            It indicates the maximum size of the results. If omitted, default is 10.
+          schema:
+            type: integer
+          required: false
+      responses:
+        200:
+          description: The ranking array has been correctly delivered.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RankUmbrella'
+        400:
+          description: The request is malformed.
+        401:
+          description: The admin was not correctly authenticated.
+
     post:
       summary: It allows the admin to insert a new RankUmbrella into the database.
       tags:
@@ -1419,6 +1454,40 @@ paths:
           description: A RankUmbrella with the given id does not exist.
 
   /api/catalog/services:
+    get:
+      summary: It returns all active services, in a paginated fashion.
+      tags:
+        - Catalog
+      security:
+        - adminAuth: []
+      parameters:
+        - name: page-id
+          in: query
+          description: >
+            It indicates which one of the incremental paginated results will be delivered. If omitted, default is 0.
+          schema:
+            type: integer
+          required: false
+        - name: page-size
+          in: query
+          description: >
+            It indicates the maximum size of the results. If omitted, default is 10.
+          schema:
+            type: integer
+          required: false
+      responses:
+        200:
+          description: The services array has been correctly delivered.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service'
+        400:
+          description: The request is malformed.
+        401:
+          description: The admin was not correctly authenticated.
     post:
       summary: It allows the admin to insert a new Service into the database.
       tags:
