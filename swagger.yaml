@@ -1180,7 +1180,29 @@ paths:
         400:
           description: The request is malformed.
 
-  /api/home-card:
+  /api/home-cards:
+    get:
+      summary: It returns all present cards.
+      tags:
+        - Home
+      security:
+        - adminAuth: []
+
+      responses:
+        200:
+          description: The server returned the desired data.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HomeCard'
+        400:
+          description: The request is malformed.
+        401:
+          description: The admin was not correctly authenticated.
+        404:
+          description: The home card with the given id does not exist.
     post:
       summary: Inserts an home card into the database.
       description: The id field is not required inside the body. If present, it will be ignored, and created a new one.
@@ -1204,7 +1226,7 @@ paths:
         404:
           description: The home card with the given id does not exist.
 
-  /api/home-card/{home-card-id}:
+  /api/home-cards/{home-card-id}:
     get:
       summary: It returns the requested home card.
       tags:
@@ -1417,7 +1439,7 @@ paths:
         401:
           description: The admin was not correctly authenticated.
 
-  /api/catalog/services/{rank-id}:
+  /api/catalog/services/{service-id}:
     get:
       summary: It allows the admin to access a specified Service.
       tags:
@@ -1425,7 +1447,7 @@ paths:
       security:
         - adminAuth: []
       parameters:
-        - name: rank-id
+        - name: service-id
           in: path
           description: A string that univocally identifies the Service.
           required: true
@@ -1452,7 +1474,7 @@ paths:
       security:
         - adminAuth: []
       parameters:
-        - name: rank-id
+        - name: service-id
           in: path
           description: A string that univocally identifies the Service.
           required: true
@@ -1483,7 +1505,7 @@ paths:
       security:
         - adminAuth: []
       parameters:
-        - name: rank-id
+        - name: service-id
           in: path
           description: A string that univocally identifies the Service.
           required: true
