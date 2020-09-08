@@ -12,7 +12,7 @@ servers:
 tags:
   - name: Customers
     description: Endpoints used to retrieve data about customers of the bathhouse.
-  - name: Admin
+  - name: Admins
     description: Endpoints used to modify the admin table.
   - name: Authentication
     description: Endpoints used for authentication purposes.
@@ -20,8 +20,12 @@ tags:
     description: Endpoints used to retrieve news about the bathhouse.
   - name: Home
     description: Endpoint to access data of the main home screen.
+  - name: Bathhouse
+    description: Endpoint to access and modify data of the bathhouse and welcome screen.
   - name: Bookings
     description: Enpoints used to access and modify booking information.
+  - name: New booking flow
+    description: Enpoints used to insert a new booking.
   - name: Catalog
     description: Endpoint used to access and modify information about offered services.
   - name: Stats
@@ -199,6 +203,19 @@ components:
           items:
             $ref: '#/components/schemas/Sale'
 
+    ShortUmbrella:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "0986"
+        number:
+          type: integer
+          example: 12
+        rankId:
+          type: string
+          example: "3838"
+
     Umbrella:
       type: object
       properties:
@@ -268,6 +285,22 @@ components:
           items:
             $ref: '#/components/schemas/Service'
 
+    Bathhouse:
+      type: Object
+      properties:
+        name:
+          type: string
+          example: "Bagni X"
+        logoUrl:
+          type: string
+          example: "http://localhost:3000/assets/logo.png"
+        seasonStart:
+          type: string
+          example: "2014-01-01T23:28:56.782Z"
+        seasonEnd:
+          type: string
+          example: "2014-01-01T23:28:56.782Z"
+
     HomeCard:
       type: object
       properties:
@@ -292,8 +325,8 @@ paths:
       tags:
         - Customers
       security:
-        - specificCustomerAuth: []
-        - adminAuth: []
+        - specificCustomerAuth: [ ]
+        - adminAuth: [ ]
       parameters:
         - name: customer-id
           in: path
@@ -325,7 +358,7 @@ paths:
         The modification request with the PUT can be executed by the interested user. Logical deletion of
         the user can be executed using the DELETE primitive.
       security:
-        - specificCustomerAuth: []
+        - specificCustomerAuth: [ ]
       parameters:
         - name: customer-id
           in: path
@@ -356,8 +389,8 @@ paths:
       tags:
         - Customers
       security:
-        - specificCustomerAuth: []
-        - adminAuth: []
+        - specificCustomerAuth: [ ]
+        - adminAuth: [ ]
       parameters:
         - name: customer-id
           in: path
@@ -386,7 +419,7 @@ paths:
       tags:
         - Customers
       security:
-        - adminAuth: []
+        - adminAuth: [ ]
       requestBody:
         required: true
         content:
@@ -404,7 +437,7 @@ paths:
       tags:
         - Customers
       security:
-        - adminAuth: []
+        - adminAuth: [ ]
       parameters:
         - name: page-id
           in: query
@@ -434,13 +467,13 @@ paths:
         401:
           description: The admin was not correctly authenticated.
 
-  /api/admin:
+  /api/admins:
     get:
       summary: Returns the list of active admins.
       tags:
-        - Admin
+        - Admins
       security:
-        - rootAuth: []
+        - rootAuth: [ ]
       responses:
         200:
           description: The server returned the admin list.
@@ -465,14 +498,14 @@ paths:
         404:
           description: An admin with the given id does not exist.
 
-  /api/admin/{admin-id}:
+  /api/admins/{admin-id}:
     get:
       summary: Returns data about the admin.
       tags:
-        - Admin
+        - Admins
       security:
-        - specificAdminAuth: []
-        - rootAuth: []
+        - specificAdminAuth: [ ]
+        - rootAuth: [ ]
       parameters:
         - name: admin-id
           in: path
@@ -505,10 +538,10 @@ paths:
     put:
       summary: It allows the modification of an admin.
       tags:
-        - Admin
+        - Admins
       security:
-        - specificAdminAuth: []
-        - rootAuth: []
+        - specificAdminAuth: [ ]
+        - rootAuth: [ ]
       parameters:
         - name: admin-id
           in: path
@@ -547,9 +580,9 @@ paths:
     delete:
       summary: It allows admin deletion, by the root admin.
       tags:
-        - Admin
+        - Admins
       security:
-        - rootAuth: []
+        - rootAuth: [ ]
       parameters:
         - name: admin-id
           in: path
@@ -650,14 +683,14 @@ paths:
         400:
           description: The request is malformed, or email/pw combination is not correct.
 
-  /api/auth/admin/register:
+  /api/auth/admins/register:
     post:
       summary: Allows an admin to be registered inside the app.
       description: An admin can only be created by the root user.
       tags:
         - Authentication
       security:
-        - rootAuth: []
+        - rootAuth: [ ]
 
       requestBody:
         required: true
@@ -694,7 +727,7 @@ paths:
         401:
           description: The client is not root, or email-password combination of the root is wrong.
 
-  /api/auth/admin/login:
+  /api/auth/admins/login:
     post:
       summary: Allows an admin to be authenticated inside the app.
       tags:
@@ -771,7 +804,7 @@ paths:
       tags:
         - News
       security:
-        - adminAuth: []
+        - adminAuth: [ ]
       requestBody:
         required: true
         content:
@@ -817,7 +850,7 @@ paths:
       tags:
         - News
       security:
-        - adminAuth: []
+        - adminAuth: [ ]
       parameters:
         - name: news-id
           in: path
@@ -848,7 +881,7 @@ paths:
       tags:
         - News
       security:
-        - adminAuth: []
+        - adminAuth: [ ]
       parameters:
         - name: news-id
           in: path
@@ -874,7 +907,7 @@ paths:
       tags:
         - Bookings
       security:
-        - adminAuth: []
+        - adminAuth: [ ]
       parameters:
         - name: page-id
           in: query
@@ -912,8 +945,8 @@ paths:
       tags:
         - Bookings
       security:
-        - adminAuth: []
-        - specificCustomerAuth: []
+        - adminAuth: [ ]
+        - specificCustomerAuth: [ ]
       parameters:
         - name: customer-id
           in: path
@@ -958,8 +991,8 @@ paths:
       tags:
         - Bookings
       security:
-        - adminAuth: []
-        - specificCustomerAuth: []
+        - adminAuth: [ ]
+        - specificCustomerAuth: [ ]
       parameters:
         - name: booking-id
           in: path
@@ -995,7 +1028,7 @@ paths:
       tags:
         - Bookings
       security:
-        - adminAuth: []
+        - adminAuth: [ ]
       parameters:
         - name: booking-id
           in: path
@@ -1026,8 +1059,8 @@ paths:
       tags:
         - Bookings
       security:
-        - specificCustomerAuth: []
-        - adminAuth: []
+        - specificCustomerAuth: [ ]
+        - adminAuth: [ ]
       parameters:
         - name: booking-id
           in: path
@@ -1047,6 +1080,36 @@ paths:
         404:
           description: Booking not found.
 
+  /api/new-booking/season-dates:
+    get:
+      summary: It returns the start and the end date of the season.
+      description: >
+        This endpoint is part of the flow used to create a new booking. As such, it is accessible only by
+        customers and admins. The dates are used to select the period in the first phase of the flow.
+      security:
+        - adminAuth: [ ]
+        - customerAuth: [ ]
+      tags:
+        - New booking flow
+      responses:
+        200:
+          description: The query was correctly served.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  seasonStart:
+                    type: string
+                    example: "2014-01-01T23:28:56.782Z"
+                  seasonEnd:
+                    type: string
+                    example: "2014-01-01T23:28:56.782Z"
+        400:
+          description: The request is malformed.
+        401:
+          description: The user was not correctly authenticated.
+
   /api/new-booking/availability:
     get:
       summary: It returns all available umbrellas in the specified period.
@@ -1054,10 +1117,10 @@ paths:
         This endpoint is part of the flow used to create a new booking. As such, it is accessible only by
         customers and admins.
       security:
-        - adminAuth: []
-        - customerAuth: []
+        - adminAuth: [ ]
+        - customerAuth: [ ]
       tags:
-        - Bookings
+        - New booking flow
       parameters:
         - name: date-from
           in: query
@@ -1088,34 +1151,11 @@ paths:
                   rankUmbrellas:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                          example: "Prima fila"
-                        description:
-                          type: string
-                          example: "I migliori ombrelloni."
-                        image:
-                          type: string
-                          example: "http://localhost:3000/image.jpg"
-                        price:
-                          type: number
-                          example: 12.23
-                        fromUmbrella:
-                          type: integer
-                          example: 1
-                        toUmbrella:
-                          type: integer
-                          example: 20
-                        sales:
-                          type: array
-                          items:
-                            $ref: '#/components/schemas/Sale'
-                        availableUmbrellas:
-                          type: array
-                          items:
-                            $ref: '#/components/schemas/Umbrella'
+                      $ref: '#/components/schemas/RankUmbrella'
+                  availableUmbrellas:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ShortUmbrella'
                   services:
                     type: array
                     items:
@@ -1132,10 +1172,10 @@ paths:
         This endpoint is part of the flow used to create a new booking. As such, it is accessible only by
         customers and admins.
       security:
-        - adminAuth: []
-        - customerAuth: []
+        - adminAuth: [ ]
+        - customerAuth: [ ]
       tags:
-        - Bookings
+        - New booking flow
       requestBody:
         required: true
         content:
@@ -1186,7 +1226,7 @@ paths:
       tags:
         - Home
       security:
-        - adminAuth: []
+        - adminAuth: [ ]
 
       responses:
         200:
@@ -1209,7 +1249,7 @@ paths:
       tags:
         - Home
       security:
-        - adminAuth: []
+        - adminAuth: [ ]
       requestBody:
         required: true
         content:
@@ -1232,7 +1272,7 @@ paths:
       tags:
         - Home
       security:
-        - adminAuth: []
+        - adminAuth: [ ]
       parameters:
         - name: home-card-id
           in: path
@@ -1261,7 +1301,7 @@ paths:
       tags:
         - Home
       security:
-        - adminAuth: []
+        - adminAuth: [ ]
       parameters:
         - name: home-card-id
           in: path
@@ -1292,7 +1332,7 @@ paths:
       tags:
         - Home
       security:
-        - adminAuth: []
+        - adminAuth: [ ]
       parameters:
         - name: home-card-id
           in: path
@@ -1313,13 +1353,48 @@ paths:
         404:
           description: The home card with the given id does not exist.
 
+  /api/bathhouse:
+    get:
+      summary: It returns the bathhouse data.
+      tags:
+        - Bathhouse
+      responses:
+        200:
+          description: The server returned the desired data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bathhouse'
+        400:
+          description: The request is malformed.
+
+    put:
+      summary: Modifies some bathhouse data.
+      tags:
+        - Bathhouse
+      security:
+        - adminAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Bathhouse'
+      responses:
+        200:
+          description: The modification has been accepted by the server.
+        400:
+          description: The request is malformed.
+        401:
+          description: The admin was not correctly authenticated.
+
   /api/catalog/rank-umbrellas:
     get:
       summary: It returns all active rankings, in a paginated fashion.
       tags:
         - Catalog
       security:
-        - adminAuth: []
+        - adminAuth: [ ]
       parameters:
         - name: page-id
           in: query
@@ -1354,7 +1429,7 @@ paths:
       tags:
         - Catalog
       security:
-        - adminAuth: []
+        - adminAuth: [ ]
       requestBody:
         required: true
         content:
@@ -1375,7 +1450,7 @@ paths:
       tags:
         - Catalog
       security:
-        - adminAuth: []
+        - adminAuth: [ ]
       parameters:
         - name: rank-id
           in: path
@@ -1402,7 +1477,7 @@ paths:
       tags:
         - Catalog
       security:
-        - adminAuth: []
+        - adminAuth: [ ]
       parameters:
         - name: rank-id
           in: path
@@ -1433,7 +1508,7 @@ paths:
       tags:
         - Catalog
       security:
-        - adminAuth: []
+        - adminAuth: [ ]
       parameters:
         - name: rank-id
           in: path
@@ -1459,7 +1534,7 @@ paths:
       tags:
         - Catalog
       security:
-        - adminAuth: []
+        - adminAuth: [ ]
       parameters:
         - name: page-id
           in: query
@@ -1493,7 +1568,7 @@ paths:
       tags:
         - Catalog
       security:
-        - adminAuth: []
+        - adminAuth: [ ]
       requestBody:
         required: true
         content:
@@ -1514,7 +1589,7 @@ paths:
       tags:
         - Catalog
       security:
-        - adminAuth: []
+        - adminAuth: [ ]
       parameters:
         - name: service-id
           in: path
@@ -1541,7 +1616,7 @@ paths:
       tags:
         - Catalog
       security:
-        - adminAuth: []
+        - adminAuth: [ ]
       parameters:
         - name: service-id
           in: path
@@ -1572,7 +1647,7 @@ paths:
       tags:
         - Catalog
       security:
-        - adminAuth: []
+        - adminAuth: [ ]
       parameters:
         - name: service-id
           in: path
