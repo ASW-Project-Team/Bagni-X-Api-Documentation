@@ -1,8 +1,8 @@
 openapi: 3.0.1
 info:
-  title: Bagni X API documentation
+  title: Bagni X API Specifications
   description: >
-    API documentation for the 2020 ASW project of [Riccardo Maldini](https://github.com/maldins46),
+    API Specifications for the 2020 ASW project of [Riccardo Maldini](https://github.com/maldins46),
     [Francesco Gorini](https://github.com/francescogorini) and [Thomas Angelini](https://github.com/ThomasAngeliniUnibo).
   version: "1.0"
 
