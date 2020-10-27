@@ -27,9 +27,9 @@ tags:
   - name: New booking flow
     description: Enpoints used to insert a new booking.
   - name: Catalog
-    description: Endpoint used to access and modify information about offered services.
+    description: Endpoints used to access and modify information about offered services.
   - name: Stats
-    description: Endpoint used to access forecast information and statistics on the progress of the season.
+    description: Endpoints used to access forecast information and statistics on the progress of the season.
 
 components:
   securitySchemes:
@@ -317,6 +317,17 @@ components:
           type: boolean
           example: false
 
+    YearStats:
+      type: array
+      items:
+        type: object
+        properties:
+          date:
+            type: string
+            example: "2014-01-01T23:28:56.782Z"
+          percent:
+            type: number
+            example: 0.30
 
 paths:
   /api/customers/{customer-id}:
@@ -1668,4 +1679,140 @@ paths:
           description: A Service with the given id does not exist.
 
   # /stats/:
+  /api/stats/current:
+    get:
+      summary: Returns statistical data about the current day (if available) and season, both historical and forecast.
+      tags:
+        - Stats
+      security:
+        - adminAuth: [ ]
+      responses:
+        200:
+          description: The server returned the specified data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  outOfSeason:
+                    type: boolean
+                    example: false
+                  dailyOccupation:
+                    type: object
+                    properties:
+                      totalUmbrellas:
+                        type: number
+                        example: 50
+                      todayOccupation:
+                        type: number
+                        example: 24
+                      yesterdayOccupation:
+                        type: number
+                        example: 22
+                  currentSeasonHistorical:
+                    $ref: '#/components/schemas/YearStats'
+                  currentSeasonProjection:
+                    $ref: '#/components/schemas/YearStats'
+                  benchmark:
+                    $ref: '#/components/schemas/YearStats'
+                  avgSeason:
+                    $ref: '#/components/schemas/YearStats'
 
+        400:
+          description: Malformed request.
+        401:
+          description: The admin was not correctly authenticated.
+
+  /api/stats/seasons/{season-id}:
+    get:
+      summary: It returns statistical data about the given season.
+      tags:
+        - Stats
+      security:
+        - adminAuth: [ ]
+      parameters:
+        - name: season-id
+          in: path
+          description: A number that univocally identifies the Season, by the year (ex. 2019). If set to 0, it identifies the average data of all seasons. If set to -1, it identifies the benchmark.
+          required: true
+          explode: true
+          schema:
+            type: number
+            example: 2019
+      responses:
+        200:
+          description: The server returned the specified Season.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  availableYears:
+                    type: array
+                    items:
+                      type: number
+                      example: 2018
+                  currentYear:
+                    type: number
+                    example: 2019
+                  season:
+                    $ref: '#/components/schemas/YearStats'
+                  avgSeason:
+                    $ref: '#/components/schemas/YearStats'
+                  benchmark:
+                    $ref: '#/components/schemas/YearStats'
+
+        400:
+          description: Malformed request.
+        401:
+          description: The admin was not correctly authenticated.
+        404:
+          description: A Season with the given id does not exist.
+
+  /api/stats/seasons:
+    get:
+      summary: It returns statistical data about the last available season.
+      tags:
+        - Stats
+      security:
+        - adminAuth: [ ]
+      responses:
+        200:
+          description: The server returned the specified Season.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  availableYears:
+                    type: array
+                    items:
+                      type: number
+                      example: 2018
+                  currentYear:
+                    type: number
+                    example: 2019
+                  season:
+                    $ref: '#/components/schemas/YearStats'
+                  avgSeason:
+                    $ref: '#/components/schemas/YearStats'
+                  benchmark:
+                    $ref: '#/components/schemas/YearStats'
+        400:
+          description: Malformed request.
+        401:
+          description: The admin was not correctly authenticated.
+
+    post:
+      summary: It triggers the generation of a season aggregate record for the current year, saving it into the database. In a real word application, this function should be triggered automatically by the server at the end of the year. Here is useful for debug purposes.
+      tags:
+        - Stats
+      security:
+        - adminAuth: [ ]
+      responses:
+        200:
+          description: The operation succeeded.
+        400:
+          description: The operation triggered an error.
+        401:
+          description: The admin was not correctly authenticated.
